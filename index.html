@@ -81,6 +81,11 @@ document.getElementById('clearNotes').onclick=()=>{
 };
 let noteMode=false, mapNotes=[];
 let selectedNoteColor = '#e65359';
+ const noteColorInput = document.getElementById('noteColor');
+
+noteColorInput.addEventListener('input', () => {
+    selectedNoteColor = noteColorInput.value;
+});
 const noteStoreKey='lamdong_map_pinned_notes_v1';
 function saveMapNotes(){try{const plainNotes=mapNotes.map(n=>({
   lat:n.lat,
