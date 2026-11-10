@@ -28,7 +28,12 @@ input[type=search]{width:100%;border:1px solid #d4dfdc;border-radius:8px;padding
 <section class="card"><h2>CHÚ THÍCH</h2><div class="small">Chọn màu, sau đó bấm xã/phường để tô. Ranh giới lấy từ GeoJSON mở tinhthanhpho.com theo mã tỉnh Lâm Đồng (68). Danh mục và ranh giới cần kiểm tra theo nghị quyết sắp xếp cấp xã 2025; đây không phải bản đồ đo đạc pháp lý.</div></section>
 <section class="card"><h2>GHI CHÚ</h2>
 <textarea id="notes" rows="3" placeholder="Nhập nội dung ghi chú..." style="width:100%;resize:vertical;border:1px solid #d4dfdc;border-radius:8px;padding:10px;font:inherit;background:#f7faf9;color:#183344"></textarea>
-<div class="controls"><button id="addNote">＋ Đặt ghi chú lên bản đồ</button><button id="clearNotes">Xóa tất cả ghi chú</button></div>
+<div style="margin-top:10px;display:flex;align-items:center;gap:8px">
+  <label for="noteColor">Màu chấm ghi chú:</label>
+  <input type="color" id="noteColor" value="#e65359"
+         style="width:45px;height:32px;padding:2px;cursor:pointer">
+</div>
+ <div class="controls"><button id="addNote">＋ Đặt ghi chú lên bản đồ</button><button id="clearNotes">Xóa tất cả ghi chú</button></div>
 <div id="noteStatus" class="small" style="margin-top:8px">Nhập ghi chú, bấm “Đặt ghi chú lên bản đồ”, rồi chọn vị trí trên bản đồ.</div>
 </section>
 </aside></main>
@@ -75,12 +80,28 @@ document.getElementById('clearNotes').onclick=()=>{
  noteStatus.textContent='Đã xóa ghi chú';
 };
 let noteMode=false, mapNotes=[];
+let selectedNoteColor = '#e65359';
 const noteStoreKey='lamdong_map_pinned_notes_v1';
-function saveMapNotes(){try{const plainNotes=mapNotes.map(n=>({lat:n.lat,lng:n.lng,text:n.text}));localStorage.setItem(noteStoreKey,JSON.stringify(plainNotes));noteStatus.textContent='Đã lưu '+plainNotes.length+' ghi chú trên bản đồ';}catch(e){noteStatus.textContent='Không lưu được ghi chú: '+e.message+'. Hãy mở bằng Chrome/Edge và không dùng chế độ ẩn danh.'}}
+function saveMapNotes(){try{const plainNotes=mapNotes.map(n=>({
+  lat:n.lat,
+  lng:n.lng,
+  text:n.text,
+  color:n.color || '#e65359'
+}));localStorage.setItem(noteStoreKey,JSON.stringify(plainNotes));noteStatus.textContent='Đã lưu '+plainNotes.length+' ghi chú trên bản đồ';}catch(e){noteStatus.textContent='Không lưu được ghi chú: '+e.message+'. Hãy mở bằng Chrome/Edge và không dùng chế độ ẩn danh.'}}
 function drawMapNotes(){
  mapNotes.forEach(n=>{
   if(n.marker)n.marker.remove();
-  n.marker=L.marker([n.lat,n.lng],{draggable:true}).addTo(map);
+  const color = n.color || '#e65359';
+
+n.marker = L.marker([n.lat, n.lng], {
+  draggable: true,
+  icon: L.divIcon({
+    className: 'custom-note-dot',
+    html: `<div style="background:${color};width:16px;height:16px;border:2px solid white;border-radius:50%;box-shadow:0 1px 4px #555;"></div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10]
+  })
+}).addTo(map);
   n.marker.bindTooltip(n.text,{permanent:true,direction:'right',className:'map-note-label',opacity:1,interactive:true});
   n.marker.on('dragend',e=>{const p=e.target.getLatLng();n.lat=p.lat;n.lng=p.lng;saveMapNotes()});
   n.marker.on('click',()=>{if(confirm('Xóa ghi chú này?')){n.marker.remove();mapNotes=mapNotes.filter(x=>x!==n);saveMapNotes()}});
@@ -100,7 +121,12 @@ function placeMapNote(latlng){
  if(!noteMode)return false;
  const text=document.getElementById('notes').value.trim();
  if(!text)return false;
- mapNotes.push({lat:latlng.lat,lng:latlng.lng,text});
+ mapNotes.push({
+  lat: latlng.lat,
+  lng: latlng.lng,
+  text: text,
+  color: selectedNoteColor
+});
  saveMapNotes();drawMapNotes();
  noteMode=false;document.getElementById('map').style.cursor='';
  document.getElementById('noteStatus').textContent='Đã đặt ghi chú. Bạn có thể kéo ghi chú để đổi vị trí; bấm ghi chú để xóa.';
