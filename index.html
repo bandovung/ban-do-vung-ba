@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bản đồ tô màu Đồng bằng sông Hồng</title>
+<title>Bản đồ vùng 3</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f6f4;color:#183344;font:15px system-ui,"Segoe UI",sans-serif}
@@ -20,7 +20,7 @@ input[type=search]{width:100%;border:1px solid #d4dfdc;border-radius:8px;padding
 .small{font-size:12px;color:#62767b}#status{font-size:13px;color:#52656b;margin-top:9px}.leaflet-container{font:inherit}.leaflet-tooltip.area-label{background:transparent;border:0;box-shadow:none;border-radius:0;padding:0;color:#243b43;font-size:9px;font-weight:500;white-space:nowrap;text-shadow:0 0 2px #fff,0 0 2px #fff;pointer-events:none}.leaflet-tooltip.area-label:before{display:none}
 @media(max-width:900px){header{display:block}main{grid-template-columns:1fr;padding:0 12px 16px}#map{height:58vh;min-height:360px}#items{height:280px}}
 </style></head><body>
-<header><div><h1>Bản đồ tô màu xã, phường tỉnh Lâm Đồng</h1><p>Lâm Đồng sau sáp nhập · Chọn màu rồi nhấn vào xã/phường để tô màu · Tìm địa bàn ở danh sách bên cạnh</p></div><span class="small">Bản đồ đơn vị hành chính cấp xã</span></header>
+<header><div><h1>vùng 3</h1><p>Lâm Đồng · Chọn màu rồi nhấn vào xã/phường để tô màu · Tìm địa bàn ở danh sách bên cạnh</p></div><span class="small">Bản đồ đơn vị hành chính cấp xã</span></header>
 <main><div id="map"></div><aside>
 <section class="card"><h2>MÀU ĐANG CHỌN</h2><div class="palette" id="palette"></div>
 <div class="controls"><label><input type="checkbox" id="labels" checked> Hiện tên xã, phường</label><button id="reset">Xóa màu</button><button id="export">Xuất dữ liệu bản đồ</button><label class="filelabel">Nhập dữ liệu bản đồ <input id="import" type="file" accept=".json" hidden></label></div><div id="status">Đang tải dữ liệu ranh giới…</div><div class="small" style="margin-top:10px" id="provinceLegend"><span><i style="display:inline-block;width:12px;height:12px;background:#c5e7b2;border:1px solid #5b844b;margin-right:6px"></i>Tỉnh Lâm Đồng mới</span></div></section>
