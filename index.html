@@ -96,8 +96,7 @@ function saveMapNotes(){try{const plainNotes=mapNotes.map(n=>({
 function drawMapNotes(){
  mapNotes.forEach(n=>{
   if(n.marker)n.marker.remove();
-  const color = selectedNoteColor;
-n.color = selectedNoteColor;
+ const color = n.color || '#e65359';
 n.marker = L.marker([n.lat, n.lng], {
   draggable: true,
   icon: L.divIcon({
