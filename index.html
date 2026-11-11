@@ -43,7 +43,25 @@ input[type=search]{width:100%;border:1px solid #d4dfdc;border-radius:8px;padding
 <script>
 const firebaseConfig={apiKey:"AIzaSyDl0UmlKUKWxHscS9dwIpy9-qY8X6_UN8A",authDomain:"bandodongbangsonghong.firebaseapp.com",databaseURL:"https://bandodongbangsonghong-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"bandodongbangsonghong",storageBucket:"bandodongbangsonghong.firebasestorage.app",messagingSenderId:"110123612719",appId:"1:110123612719:web:9177913cfd267eaaf664da",measurementId:"G-Y2PHZ03RR7"};
 firebase.initializeApp(firebaseConfig);const sharedRef=firebase.database().ref('lamdongMap');let cloudReady=false,cloudDebounce=null;
-function pushShared(){if(!cloudReady)return;clearTimeout(cloudDebounce);cloudDebounce=setTimeout(()=>sharedRef.set({colors:colorById,notes:mapNotes.map(n=>({lat:n.lat,lng:n.lng,text:n.text})),noteText:notesBox.value,updatedAt:Date.now()}).catch(e=>{document.getElementById('status').textContent='Lỗi lưu Firebase: '+e.message}),300)}
+function pushShared(){
+  if(!cloudReady)return;
+  clearTimeout(cloudDebounce);
+  cloudDebounce=setTimeout(()=>{
+    sharedRef.set({
+      colors: colorById,
+      notes: mapNotes.map(n=>({
+        lat: n.lat,
+        lng: n.lng,
+        text: n.text,
+        color: n.color || '#e65359'
+      })),
+      noteText: notesBox.value,
+      updatedAt: Date.now()
+    }).catch(e=>{
+      document.getElementById('status').textContent='Lỗi lưu Firebase: '+e.message;
+    });
+  },300);
+}
 const map=L.map('map').setView([11.5,108.1],7);
 // Không tải tile nền bên ngoài: tránh lỗi 403/blocked khi mở file trực tiếp.
 const colors=['#e65359','#f28b27','#f1c83d','#59a052','#74b8b1','#4e7fae','#304d83','#ad79a2','#f48e9c','#9b7763','#8dcc80','#b9b2ae','#d6a5c5','#ffffff'];
@@ -87,12 +105,25 @@ noteColorInput.addEventListener('input', () => {
     selectedNoteColor = noteColorInput.value;
 });
 const noteStoreKey='lamdong_map_pinned_notes_v1';
-function saveMapNotes(){try{const plainNotes=mapNotes.map(n=>({
-  lat:n.lat,
-  lng:n.lng,
-  text:n.text,
-  color:n.color || '#e65359'
-}));localStorage.setItem(noteStoreKey,JSON.stringify(plainNotes));noteStatus.textContent='Đã lưu '+plainNotes.length+' ghi chú trên bản đồ';}catch(e){noteStatus.textContent='Không lưu được ghi chú: '+e.message+'. Hãy mở bằng Chrome/Edge và không dùng chế độ ẩn danh.'}}
+function saveMapNotes(){
+  try{
+    const plainNotes = mapNotes.map(n => ({
+      lat: n.lat,
+      lng: n.lng,
+      text: n.text,
+      color: n.color || '#e65359'
+    }));
+
+    localStorage.setItem(noteStoreKey, JSON.stringify(plainNotes));
+    noteStatus.textContent = 'Đã lưu ' + plainNotes.length + ' ghi chú trên bản đồ';
+
+    // Đồng bộ cả màu ghi chú lên Firebase
+    pushShared();
+
+  }catch(e){
+    noteStatus.textContent = 'Không lưu được ghi chú: ' + e.message;
+  }
+}
 function drawMapNotes(){
  mapNotes.forEach(n=>{
   if(n.marker)n.marker.remove();
@@ -172,8 +203,18 @@ function refreshLabels(){
 document.getElementById('labels').onchange=refreshLabels;
 map.on('zoomend moveend',refreshLabels);
 document.getElementById('reset').onclick=()=>{colorById={};saveColors();repaint()};
-document.getElementById('export').onclick=()=>{const project={format:'lamdong-map-project',version:1,colors:colorById,notes:mapNotes.map(n=>({lat:n.lat,lng:n.lng,text:n.text})),noteText:notesBox.value};let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}));a.download='du-lieu-ban-do-lam-dong.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
-document.getElementById('import').onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());if(data&&data.format==='lamdong-map-project'){colorById=data.colors&&typeof data.colors==='object'?data.colors:{};mapNotes=Array.isArray(data.notes)?data.notes.filter(n=>Number.isFinite(n.lat)&&Number.isFinite(n.lng)&&typeof n.text==='string').map(n=>({lat:n.lat,lng:n.lng,text:n.text})):[];notesBox.value=typeof data.noteText==='string'?data.noteText:'';saveColors();saveMapNotes();try{localStorage.setItem('lamdong_map_notes_v1',notesBox.value)}catch(e){}if(layer){layer.remove();layersById.clear();}await load();}else{colorById=data;saveColors();repaint()}}catch(err){alert('File JSON không hợp lệ: '+err.message)}finally{e.target.value=''}};
+document.getElementById('export').onclick=()=>{const project={format:'lamdong-map-project',version:1,colors:colorById,notes:mapNotes.map(n=>({
+  lat:n.lat,
+  lng:n.lng,
+  text:n.text,
+  color:n.color || '#e65359'
+})),noteText:notesBox.value};let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}));a.download='du-lieu-ban-do-lam-dong.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+document.getElementById('import').onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());if(data&&data.format==='lamdong-map-project'){colorById=data.colors&&typeof data.colors==='object'?data.colors:{};mapNotes=Array.isArray(data.notes)?data.notes.filter(n=>Number.isFinite(n.lat)&&Number.isFinite(n.lng)&&typeof n.text==='string').map(n=>({
+  lat:n.lat,
+  lng:n.lng,
+  text:n.text,
+  color:n.color || '#e65359'
+})):[];notesBox.value=typeof data.noteText==='string'?data.noteText:'';saveColors();saveMapNotes();try{localStorage.setItem('lamdong_map_notes_v1',notesBox.value)}catch(e){}if(layer){layer.remove();layersById.clear();}await load();}else{colorById=data;saveColors();repaint()}}catch(err){alert('File JSON không hợp lệ: '+err.message)}finally{e.target.value=''}};
 async function load(){
  const provinces=[{name:'Lâm Đồng',code:'68'}];
  const all=[], failures=[];
@@ -203,5 +244,64 @@ async function load(){
 }
 load().catch(err=>{document.getElementById('status').textContent='Không tải được dữ liệu ranh giới: '+err.message+'. Hãy thử mở lại khi có Internet.';document.getElementById('items').innerHTML='<div class="small" style="padding:10px">Tải dữ liệu bản đồ thất bại. Kiểm tra kết nối Internet rồi tải lại trang.</div>'});
 
-sharedRef.on('value',snap=>{const d=snap.val();if(!d){cloudReady=true;pushShared();return;}const rc=d.colors&&typeof d.colors==='object'?d.colors:{},rn=Array.isArray(d.notes)?d.notes.filter(n=>Number.isFinite(n.lat)&&Number.isFinite(n.lng)&&typeof n.text==='string'):[];const currentNotes=mapNotes.map(n=>({lat:n.lat,lng:n.lng,text:n.text}));const changed=JSON.stringify(colorById)!==JSON.stringify(rc)||JSON.stringify(currentNotes)!==JSON.stringify(rn)||notesBox.value!==(d.noteText||'');if(changed){colorById=rc;mapNotes=rn;notesBox.value=d.noteText||'';try{localStorage.setItem(colorStoreKey,JSON.stringify(rc));localStorage.setItem(noteStoreKey,JSON.stringify(rn));localStorage.setItem('lamdong_map_notes_v1',notesBox.value)}catch(e){}if(layer){layer.remove();layersById.clear();}load().catch(console.error);}cloudReady=true;document.getElementById('status').textContent='Đã kết nối Firebase — dữ liệu đang chia sẻ trực tuyến.';});
+sharedRef.on('value', snap => {
+  const d = snap.val();
+
+  if (!d) {
+    cloudReady = true;
+    pushShared();
+    return;
+  }
+
+  const rc = d.colors && typeof d.colors === 'object'
+    ? d.colors : {};
+
+  const rn = Array.isArray(d.notes)
+    ? d.notes.filter(n =>
+        Number.isFinite(n.lat) &&
+        Number.isFinite(n.lng) &&
+        typeof n.text === 'string'
+      ).map(n => ({
+        lat: n.lat,
+        lng: n.lng,
+        text: n.text,
+        color: n.color || '#e65359'
+      }))
+    : [];
+
+  const currentNotes = mapNotes.map(n => ({
+    lat: n.lat,
+    lng: n.lng,
+    text: n.text,
+    color: n.color || '#e65359'
+  }));
+
+  const changed =
+    JSON.stringify(colorById) !== JSON.stringify(rc) ||
+    JSON.stringify(currentNotes) !== JSON.stringify(rn) ||
+    notesBox.value !== (d.noteText || '');
+
+  if (changed) {
+    colorById = rc;
+    mapNotes = rn;
+    notesBox.value = d.noteText || '';
+
+    try {
+      localStorage.setItem(colorStoreKey, JSON.stringify(rc));
+      localStorage.setItem(noteStoreKey, JSON.stringify(rn));
+      localStorage.setItem('lamdong_map_notes_v1', notesBox.value);
+    } catch (e) {}
+
+    if (layer) {
+      layer.remove();
+      layersById.clear();
+    }
+
+    load().catch(console.error);
+  }
+
+  cloudReady = true;
+  document.getElementById('status').textContent =
+    'Đã kết nối Firebase — dữ liệu đang chia sẻ trực tuyến.';
+});
 </script></body></html>
