@@ -67,6 +67,8 @@ function pushShared(){
   },300);
 }
 const map=L.map('map').setView([11.5,108.1],7);
+map.createPane('oldProvinceBoundaries');
+map.getPane('oldProvinceBoundaries').style.zIndex=450;
 const panelToggle=document.getElementById('togglePanel');
 requestAnimationFrame(()=>setTimeout(()=>map.invalidateSize(true),250));
 window.addEventListener('resize',()=>setTimeout(()=>map.invalidateSize(true),150));
@@ -230,6 +232,37 @@ document.getElementById('import').onchange=async e=>{if(!EDIT_MODE){e.target.val
   text:n.text,
   color:n.color || '#e65359'
 })):[];notesBox.value=typeof data.noteText==='string'?data.noteText:'';saveColors();saveMapNotes();try{localStorage.setItem('lamdong_map_notes_v1',notesBox.value)}catch(e){}if(layer){layer.remove();layersById.clear();}await load();}else{colorById=data;saveColors();repaint()}}catch(err){alert('File JSON không hợp lệ: '+err.message)}finally{e.target.value=''}};
+
+// Đường ranh giới 3 tỉnh cũ (lớp viền tham khảo, không tô nền).
+async function loadOldProvinceBorders(){
+  const oldProvinceNames = ['Lâm Đồng','Đắk Nông','Bình Thuận'];
+  const sourceUrl = 'https://gist.githubusercontent.com/wayfu/448f9731a1c6e20efbe2de57b4836fce/raw/4a26ac44969a471796789eb9d1d7faaa19788701/geoBoundaries-VNM-ADM1.geojson';
+  try{
+    const response = await fetch(sourceUrl);
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    const data = await response.json();
+    const selected = (data.features||[]).filter(f =>
+      oldProvinceNames.includes((f.properties||{}).shapeName)
+    );
+    if(selected.length !== 3) throw new Error('Không tìm đủ 3 tỉnh cũ trong dữ liệu ranh giới');
+    const outline = {type:'FeatureCollection',features:selected};
+    L.geoJSON(outline,{
+      pane:'oldProvinceBoundaries',
+      interactive:false,
+      style:{color:'#ffffff',weight:7,opacity:0.98,fill:false,lineCap:'round',lineJoin:'round'}
+    }).addTo(map);
+    L.geoJSON(outline,{
+      pane:'oldProvinceBoundaries',
+      interactive:false,
+      style:{color:'#172b36',weight:4,opacity:1,fill:false,lineCap:'round',lineJoin:'round'}
+    }).addTo(map);
+  }catch(err){
+    console.warn('Không tải được đường viền 3 tỉnh cũ:',err);
+    const status=document.getElementById('status');
+    if(status) status.textContent += ' Chưa tải được lớp ranh giới tỉnh cũ; kiểm tra kết nối Internet.';
+  }
+}
+
 async function load(){
  const provinces=[{name:'Lâm Đồng',code:'68'}];
  const all=[], failures=[];
@@ -255,6 +288,7 @@ async function load(){
   l.bindPopup(()=>'<b>'+nameOf(f)+'</b><br>'+(props(f).__province||'')+'<br>Nhấn bản đồ để tô màu');
  }}).addTo(map);
  map.fitBounds(layer.getBounds(),{padding:[12,12]});
+  loadOldProvinceBorders();
   setTimeout(()=>map.invalidateSize(true),250);
   renderList();refreshLabels();drawMapNotes();
  document.getElementById('status').textContent='Đã tải '+features.length+' xã/phường từ '+(provinces.length-failures.length)+'/1 tỉnh.'+(failures.length?' Chưa tải được: '+failures.join(' | '):'');
