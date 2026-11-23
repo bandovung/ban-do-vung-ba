@@ -208,7 +208,8 @@ function placeMapNote(latlng){
   lat: latlng.lat,
   lng: latlng.lng,
   text: text,
-  color: selectedNoteColor
+  color: selectedNoteColor,
+  shape: selectedNoteShape
 });
  saveMapNotes();drawMapNotes();
  noteMode=false;document.getElementById('map').style.cursor='';
