@@ -150,7 +150,15 @@ n.marker = L.marker([n.lat, n.lng], {
     iconAnchor: [10, 10]
   })
 }).addTo(map);
-  n.marker.bindTooltip(n.text,{permanent:true,direction:'right',className:'map-note-label',opacity:1,interactive:true});
+  // Nội dung chỉ xuất hiện khi rê chuột lên chấm; trên điện thoại có thể chạm để xem.
+  n.marker.bindTooltip(n.text,{
+    permanent:false,
+    direction:'top',
+    sticky:true,
+    className:'map-note-label',
+    opacity:1,
+    interactive:false
+  });
   if(EDIT_MODE){
    n.marker.on('dragend',e=>{const p=e.target.getLatLng();n.lat=p.lat;n.lng=p.lng;saveMapNotes()});
    n.marker.on('click',()=>{if(confirm('Xóa ghi chú này?')){n.marker.remove();mapNotes=mapNotes.filter(x=>x!==n);saveMapNotes()}});
