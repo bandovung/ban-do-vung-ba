@@ -18,12 +18,27 @@ button:hover,.filelabel:hover{background:#eaf2ef}.controls{display:flex;gap:8px;
 input[type=search]{width:100%;border:1px solid #d4dfdc;border-radius:8px;padding:10px;font:inherit;background:#f7faf9}
  .map-note-label{background:#fff;border:1px solid #9aa8a5;border-radius:5px;padding:5px 8px;color:#243b43;font-size:12px;white-space:normal;max-width:180px;box-shadow:0 1px 4px #0002}.map-note-label:before{border-top-color:#9aa8a5}
 #items{height:calc(100vh - 430px);min-height:220px;overflow:auto;margin-top:10px}.item{padding:7px 9px;border-radius:7px;display:flex;gap:8px;align-items:center;cursor:pointer}.item:hover,.item.selected{background:#edf3f0}.dot{width:12px;height:12px;border:1px solid #cdd7d3;border-radius:3px;flex:none}
-.legend-wrap{max-width:1400px;margin:0 auto 24px;padding:0 24px}.legend-card{background:#fff;border:1px solid #d8e2df;border-radius:12px;padding:14px}.legend-entry{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;margin:4px 8px 4px 0;border:1px solid #e1e8e5;border-radius:8px;background:#fbfdfc}.legend-symbol{width:16px;height:16px;display:inline-block;flex:none}.legend-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}.legend-form input[type=text]{min-width:180px;flex:1;border:1px solid #d4dfdc;border-radius:8px;padding:9px;font:inherit}.legend-entry button{padding:3px 7px;font-size:12px}@media(max-width:900px){.legend-wrap{padding:0 12px}}
+.map-column{min-width:0}.legend-wrap{margin-top:14px;padding:0}.legend-card{background:#fff;border:1px solid #d8e2df;border-radius:12px;padding:14px}.legend-entry{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;margin:4px 8px 4px 0;border:1px solid #e1e8e5;border-radius:8px;background:#fbfdfc}.legend-symbol{width:16px;height:16px;display:inline-block;flex:none}.legend-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}.legend-form input[type=text]{min-width:180px;flex:1;border:1px solid #d4dfdc;border-radius:8px;padding:9px;font:inherit}.legend-entry button{padding:3px 7px;font-size:12px}@media(max-width:900px){.legend-wrap{padding:0}}
 .small{font-size:12px;color:#62767b}#status{font-size:13px;color:#52656b;margin-top:9px}.leaflet-container{font:inherit}.leaflet-tooltip.area-label{background:transparent;border:0;box-shadow:none;border-radius:0;padding:0;color:#243b43;font-size:9px;font-weight:500;white-space:nowrap;text-shadow:0 0 2px #fff,0 0 2px #fff;pointer-events:none}.leaflet-tooltip.area-label:before{display:none}
 @media(max-width:900px){header{display:block}main{grid-template-columns:1fr;padding:0 12px 16px}#map{height:58vh;min-height:360px}#items{height:280px}}
 </style></head><body class="panel-hidden">
 <header><div><h1>Lâm Đồng Mới</h1><p>Lâm Đồng · Chọn màu rồi nhấn vào xã/phường để tô màu · Tìm địa bàn ở danh sách bên cạnh</p></div><span class="small">Bản đồ đơn vị hành chính cấp xã</span></header>
-<button id="togglePanel" type="button" aria-expanded="false">Hiện bảng công cụ ▶</button><main><div id="map"></div><aside>
+<button id="togglePanel" type="button" aria-expanded="false">Hiện bảng công cụ ▶</button><main><div class="map-column"><div id="map"></div><section class="legend-wrap">
+ <div class="legend-card">
+  <h2>CHÚ THÍCH BẢN ĐỒ</h2>
+  <div id="customLegendList"><span class="small">Chưa có chú thích nào.</span></div>
+  <div class="legend-form edit-only">
+   <label for="legendShape">Hình:</label>
+   <select id="legendShape" style="border:1px solid #d4dfdc;border-radius:8px;padding:8px;background:#f7faf9">
+    <option value="circle">Hình tròn</option><option value="square">Hình vuông</option>
+    <option value="triangle">Tam giác</option><option value="diamond">Hình thoi</option><option value="star">Ngôi sao</option>
+   </select>
+   <label for="legendColor">Màu:</label><input type="color" id="legendColor" value="#e65359">
+   <input type="text" id="legendText" placeholder="Nhập nội dung chú thích...">
+   <button type="button" id="addLegend">＋ Thêm chú thích</button>
+  </div>
+ </div>
+</section></div><aside>
 <section class="card"><h2>MÀU ĐANG CHỌN</h2><div class="palette edit-only" id="palette"></div>
 <div class="controls"><label><input type="checkbox" id="labels" checked> Hiện tên xã, phường</label><button class="edit-only" id="reset">Xóa màu</button><button class="edit-only" id="export">Xuất dữ liệu bản đồ</button><label class="filelabel edit-only">Nhập dữ liệu bản đồ <input id="import" type="file" accept=".json" hidden></label></div><div id="status">Đang tải dữ liệu ranh giới…</div><div class="small" style="margin-top:10px" id="provinceLegend"><span><i style="display:inline-block;width:12px;height:12px;background:#c5e7b2;border:1px solid #5b844b;margin-right:6px"></i>Tỉnh Lâm Đồng mới</span></div></section>
 <section class="card"><h2>DANH SÁCH XÃ, PHƯỜNG</h2><input id="search" type="search" placeholder="Tìm xã, phường…"><div id="items"><div class="small" style="padding:10px">Đang tải danh sách…</div></div></section>
@@ -49,22 +64,7 @@ input[type=search]{width:100%;border:1px solid #d4dfdc;border-radius:8px;padding
 <div id="noteStatus" class="small" style="margin-top:8px">Nhập ghi chú, bấm “Đặt ghi chú lên bản đồ”, rồi chọn vị trí trên bản đồ.</div>
 </section>
 </aside></main>
-<section class="legend-wrap">
- <div class="legend-card">
-  <h2>CHÚ THÍCH BẢN ĐỒ</h2>
-  <div id="customLegendList"><span class="small">Chưa có chú thích nào.</span></div>
-  <div class="legend-form edit-only">
-   <label for="legendShape">Hình:</label>
-   <select id="legendShape" style="border:1px solid #d4dfdc;border-radius:8px;padding:8px;background:#f7faf9">
-    <option value="circle">Hình tròn</option><option value="square">Hình vuông</option>
-    <option value="triangle">Tam giác</option><option value="diamond">Hình thoi</option><option value="star">Ngôi sao</option>
-   </select>
-   <label for="legendColor">Màu:</label><input type="color" id="legendColor" value="#e65359">
-   <input type="text" id="legendText" placeholder="Nhập nội dung chú thích...">
-   <button type="button" id="addLegend">＋ Thêm chú thích</button>
-  </div>
- </div>
-</section>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
