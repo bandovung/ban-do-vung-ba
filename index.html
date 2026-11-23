@@ -18,6 +18,7 @@ button:hover,.filelabel:hover{background:#eaf2ef}.controls{display:flex;gap:8px;
 input[type=search]{width:100%;border:1px solid #d4dfdc;border-radius:8px;padding:10px;font:inherit;background:#f7faf9}
  .map-note-label{background:#fff;border:1px solid #9aa8a5;border-radius:5px;padding:5px 8px;color:#243b43;font-size:12px;white-space:normal;max-width:180px;box-shadow:0 1px 4px #0002}.map-note-label:before{border-top-color:#9aa8a5}
 #items{height:calc(100vh - 430px);min-height:220px;overflow:auto;margin-top:10px}.item{padding:7px 9px;border-radius:7px;display:flex;gap:8px;align-items:center;cursor:pointer}.item:hover,.item.selected{background:#edf3f0}.dot{width:12px;height:12px;border:1px solid #cdd7d3;border-radius:3px;flex:none}
+.legend-wrap{max-width:1400px;margin:0 auto 24px;padding:0 24px}.legend-card{background:#fff;border:1px solid #d8e2df;border-radius:12px;padding:14px}.legend-entry{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;margin:4px 8px 4px 0;border:1px solid #e1e8e5;border-radius:8px;background:#fbfdfc}.legend-symbol{width:16px;height:16px;display:inline-block;flex:none}.legend-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}.legend-form input[type=text]{min-width:180px;flex:1;border:1px solid #d4dfdc;border-radius:8px;padding:9px;font:inherit}.legend-entry button{padding:3px 7px;font-size:12px}@media(max-width:900px){.legend-wrap{padding:0 12px}}
 .small{font-size:12px;color:#62767b}#status{font-size:13px;color:#52656b;margin-top:9px}.leaflet-container{font:inherit}.leaflet-tooltip.area-label{background:transparent;border:0;box-shadow:none;border-radius:0;padding:0;color:#243b43;font-size:9px;font-weight:500;white-space:nowrap;text-shadow:0 0 2px #fff,0 0 2px #fff;pointer-events:none}.leaflet-tooltip.area-label:before{display:none}
 @media(max-width:900px){header{display:block}main{grid-template-columns:1fr;padding:0 12px 16px}#map{height:58vh;min-height:360px}#items{height:280px}}
 </style></head><body class="panel-hidden">
@@ -48,6 +49,22 @@ input[type=search]{width:100%;border:1px solid #d4dfdc;border-radius:8px;padding
 <div id="noteStatus" class="small" style="margin-top:8px">Nhập ghi chú, bấm “Đặt ghi chú lên bản đồ”, rồi chọn vị trí trên bản đồ.</div>
 </section>
 </aside></main>
+<section class="legend-wrap">
+ <div class="legend-card">
+  <h2>CHÚ THÍCH BẢN ĐỒ</h2>
+  <div id="customLegendList"><span class="small">Chưa có chú thích nào.</span></div>
+  <div class="legend-form edit-only">
+   <label for="legendShape">Hình:</label>
+   <select id="legendShape" style="border:1px solid #d4dfdc;border-radius:8px;padding:8px;background:#f7faf9">
+    <option value="circle">Hình tròn</option><option value="square">Hình vuông</option>
+    <option value="triangle">Tam giác</option><option value="diamond">Hình thoi</option><option value="star">Ngôi sao</option>
+   </select>
+   <label for="legendColor">Màu:</label><input type="color" id="legendColor" value="#e65359">
+   <input type="text" id="legendText" placeholder="Nhập nội dung chú thích...">
+   <button type="button" id="addLegend">＋ Thêm chú thích</button>
+  </div>
+ </div>
+</section>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -57,6 +74,7 @@ const firebaseConfig={apiKey:"AIzaSyDl0UmlKUKWxHscS9dwIpy9-qY8X6_UN8A",authDomai
 const EDIT_MODE = true;
 if (!EDIT_MODE) document.body.classList.add('read-only');
 firebase.initializeApp(firebaseConfig);const sharedRef=firebase.database().ref('lamdongMap');let cloudReady=false,cloudDebounce=null;
+let customLegendItems=[];
 function pushShared(){
   if(!EDIT_MODE || !cloudReady)return;
   clearTimeout(cloudDebounce);
@@ -71,6 +89,7 @@ function pushShared(){
         shape: n.shape || 'circle'
       })),
       noteText: notesBox.value,
+      legendItems: customLegendItems,
       updatedAt: Date.now()
     }).catch(e=>{
       document.getElementById('status').textContent='Lỗi lưu Firebase: '+e.message;
@@ -162,6 +181,34 @@ function noteShapeStyle(shape){
  };
  return styles[shape]||styles.circle;
 }
+const legendStoreKey='lamdong_custom_legend_v1';
+try{customLegendItems=JSON.parse(localStorage.getItem(legendStoreKey)||'[]');if(!Array.isArray(customLegendItems))customLegendItems=[]}catch(e){customLegendItems=[]}
+function renderCustomLegend(){
+ const box=document.getElementById('customLegendList'); box.innerHTML='';
+ if(!customLegendItems.length){box.innerHTML='<span class="small">Chưa có chú thích nào.</span>';return;}
+ customLegendItems.forEach((item,index)=>{
+  const row=document.createElement('span');row.className='legend-entry';
+  const symbol=document.createElement('span');symbol.className='legend-symbol';
+  symbol.style.background=item.color||'#e65359';symbol.style.cssText+=noteShapeStyle(item.shape);
+  const label=document.createElement('span');label.textContent=item.text;
+  row.append(symbol,label);
+  if(EDIT_MODE){const del=document.createElement('button');del.type='button';del.textContent='Xóa';del.onclick=()=>{customLegendItems.splice(index,1);saveCustomLegend()};row.append(del);}
+  box.append(row);
+ });
+}
+function saveCustomLegend(){
+ try{localStorage.setItem(legendStoreKey,JSON.stringify(customLegendItems));}catch(e){}
+ renderCustomLegend();pushShared();
+}
+document.getElementById('addLegend').addEventListener('click',()=>{
+ if(!EDIT_MODE)return;
+ const text=document.getElementById('legendText').value.trim();
+ if(!text){alert('Bạn nhập nội dung chú thích trước nhé.');return;}
+ customLegendItems.push({text,color:document.getElementById('legendColor').value,shape:document.getElementById('legendShape').value});
+ document.getElementById('legendText').value='';
+ saveCustomLegend();
+});
+renderCustomLegend();
 function drawMapNotes(){
  mapNotes.forEach(n=>{
   if(n.marker)n.marker.remove();
@@ -306,6 +353,7 @@ sharedRef.on('value', snap => {
 
   const rc = d.colors && typeof d.colors === 'object'
     ? d.colors : {};
+  const rl = Array.isArray(d.legendItems) ? d.legendItems : [];
 
   const rn = Array.isArray(d.notes)
     ? d.notes.filter(n =>
@@ -332,12 +380,16 @@ sharedRef.on('value', snap => {
   const changed =
     JSON.stringify(colorById) !== JSON.stringify(rc) ||
     JSON.stringify(currentNotes) !== JSON.stringify(rn) ||
-    notesBox.value !== (d.noteText || '');
+    notesBox.value !== (d.noteText || '') ||
+    JSON.stringify(customLegendItems) !== JSON.stringify(rl);
 
   if (changed) {
     colorById = rc;
     mapNotes = rn;
     notesBox.value = d.noteText || '';
+    customLegendItems = rl;
+    try{localStorage.setItem(legendStoreKey,JSON.stringify(rl));}catch(e){}
+    renderCustomLegend();
 
     try {
       localStorage.setItem(colorStoreKey, JSON.stringify(rc));
