@@ -297,26 +297,17 @@ function refreshLabels(){
  const show=document.getElementById('labels').checked;
  layer.eachLayer(l=>{
   if(show){
-   if(!l.getTooltip())l.bindTooltip(nameOf(l.feature),{permanent:true,direction:'center',className:'area-label',opacity:.95});
+   if(!l.getTooltip())l.bindTooltip(nameOf(l.feature),{
+    permanent:false,
+    direction:'top',
+    sticky:true,
+    className:'area-label',
+    opacity:.98
+   });
    else l.setTooltipContent(nameOf(l.feature));
-   l.openTooltip();
-  }else if(l.getTooltip())l.closeTooltip();
- });
- // Leaflet positions labels in screen pixels; hide colliding labels after each zoom.
- requestAnimationFrame(()=>{
-  const nodes=[...document.querySelectorAll('#map .leaflet-tooltip.area-label')];
-  nodes.forEach(n=>n.style.visibility=show?'visible':'hidden');
-  if(!show)return;
-  const accepted=[];
-  // Prefer labels with more room around their polygon center, while keeping every label fixed-size.
-  const ordered=nodes.map(n=>({n,r:n.getBoundingClientRect()}))
-    .sort((a,b)=>(b.r.width*b.r.height)-(a.r.width*a.r.height));
-  ordered.forEach(({n,r})=>{
-   const pad=2, box={left:r.left-pad,right:r.right+pad,top:r.top-pad,bottom:r.bottom+pad};
-   const hit=accepted.some(a=>!(box.right<=a.left||box.left>=a.right||box.bottom<=a.top||box.top>=a.bottom));
-   if(hit)n.style.visibility='hidden';
-   else {n.style.visibility='visible';accepted.push(box)}
-  });
+  }else if(l.getTooltip()){
+   l.unbindTooltip();
+  }
  });
 }
 document.getElementById('labels').onchange=refreshLabels;
@@ -361,7 +352,13 @@ async function load(){
   l.on('click',e=>{if(placeMapNote(e.latlng))return;paint(f)});
   l.on('mouseover',()=>{l.setStyle({color:'#263b44',weight:2.8,opacity:1,fillOpacity:1});if(l.bringToFront)l.bringToFront()});
   l.on('mouseout',()=>{l.setStyle(sty(f))});
-  if(document.getElementById('labels').checked)l.bindTooltip(nameOf(f),{permanent:true,direction:'center',className:'area-label',opacity:.95});
+  if(document.getElementById('labels').checked)l.bindTooltip(nameOf(f),{
+   permanent:false,
+   direction:'top',
+   sticky:true,
+   className:'area-label',
+   opacity:.98
+  });
   l.bindPopup(()=>'<b>'+nameOf(f)+'</b><br>'+(props(f).__province||'')+'<br>Nhấn bản đồ để tô màu');
  }}).addTo(map);
  map.fitBounds(layer.getBounds(),{padding:[12,12]});
