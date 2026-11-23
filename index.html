@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bản đồ Lâm Đồng mới</title>
+<title>Bản đồ 5 tỉnh sau sáp nhập</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f6f4;color:#183344;font:15px system-ui,"Segoe UI",sans-serif}
@@ -24,7 +24,7 @@ input[type=search]{width:100%;border:1px solid #d4dfdc;border-radius:8px;padding
 .small{font-size:12px;color:#62767b}#status{font-size:13px;color:#52656b;margin-top:9px}.leaflet-container{font:inherit}.leaflet-tooltip.area-label{background:transparent;border:0;box-shadow:none;border-radius:0;padding:0;color:#243b43;font-size:9px;font-weight:500;white-space:nowrap;text-shadow:0 0 2px #fff,0 0 2px #fff;pointer-events:none}.leaflet-tooltip.area-label:before{display:none}
 @media(max-width:900px){header{display:block}main{grid-template-columns:1fr;padding:0 12px 16px}#map{height:58vh;min-height:360px}#items{height:280px}}
 </style></head><body class="panel-hidden">
-<header><div><h1>Lâm Đồng Mới</h1><p>Lâm Đồng · Chọn màu rồi nhấn vào xã/phường để tô màu · Tìm địa bàn ở danh sách bên cạnh</p></div><span class="small">Bản đồ đơn vị hành chính cấp xã</span></header>
+<header><div><h1>Bản đồ 5 tỉnh sau sáp nhập</h1><p>Đắk Lắk · Gia Lai · Quảng Ngãi · Khánh Hòa · Lâm Đồng</p></div><span class="small">Bản đồ đơn vị hành chính cấp xã sau sáp nhập năm 2025</span></header>
 <button id="togglePanel" type="button" aria-expanded="false">Hiện bảng công cụ ▶</button><main><div class="map-column"><div id="map"></div><section class="legend-wrap">
  <div class="legend-card">
   <h2>CHÚ THÍCH BẢN ĐỒ</h2>
@@ -42,9 +42,15 @@ input[type=search]{width:100%;border:1px solid #d4dfdc;border-radius:8px;padding
  </div>
 </section></div><aside>
 <section class="card"><h2>MÀU ĐANG CHỌN</h2><div class="palette edit-only" id="palette"></div>
-<div class="controls"><label><input type="checkbox" id="labels" checked> Hiện tên xã, phường</label><button class="edit-only" id="reset">Xóa màu</button><button class="edit-only" id="export">Xuất dữ liệu bản đồ</button><label class="filelabel edit-only">Nhập dữ liệu bản đồ <input id="import" type="file" accept=".json" hidden></label></div><div id="status">Đang tải dữ liệu ranh giới…</div><div class="small" style="margin-top:10px" id="provinceLegend"><span><i style="display:inline-block;width:12px;height:12px;background:#c5e7b2;border:1px solid #5b844b;margin-right:6px"></i>Tỉnh Lâm Đồng mới</span></div></section>
+<div class="controls"><label><input type="checkbox" id="labels" checked> Hiện tên xã, phường</label><button class="edit-only" id="reset">Xóa màu</button><button class="edit-only" id="export">Xuất dữ liệu bản đồ</button><label class="filelabel edit-only">Nhập dữ liệu bản đồ <input id="import" type="file" accept=".json" hidden></label></div><div id="status">Đang tải dữ liệu ranh giới…</div><div class="small" style="margin-top:10px" id="provinceLegend"><span style="display:inline-flex;gap:12px;flex-wrap:wrap">
+<span><i style="display:inline-block;width:12px;height:12px;background:#f4d58d;border:1px solid #8b7442;margin-right:5px"></i>Đắk Lắk</span>
+<span><i style="display:inline-block;width:12px;height:12px;background:#b8d9a8;border:1px solid #648a59;margin-right:5px"></i>Gia Lai</span>
+<span><i style="display:inline-block;width:12px;height:12px;background:#a9d5df;border:1px solid #5d8992;margin-right:5px"></i>Quảng Ngãi</span>
+<span><i style="display:inline-block;width:12px;height:12px;background:#e8b7c7;border:1px solid #a16c7e;margin-right:5px"></i>Khánh Hòa</span>
+<span><i style="display:inline-block;width:12px;height:12px;background:#c5b5df;border:1px solid #806b9e;margin-right:5px"></i>Lâm Đồng</span>
+</span></div></section>
 <section class="card"><h2>DANH SÁCH XÃ, PHƯỜNG</h2><input id="search" type="search" placeholder="Tìm xã, phường…"><div id="items"><div class="small" style="padding:10px">Đang tải danh sách…</div></div></section>
-<section class="card"><h2>CHÚ THÍCH</h2><div class="small">Chọn màu, sau đó bấm xã/phường để tô. Ranh giới lấy từ GeoJSON mở tinhthanhpho.com theo mã tỉnh Lâm Đồng (68). Danh mục và ranh giới cần kiểm tra theo nghị quyết sắp xếp cấp xã 2025; đây không phải bản đồ đo đạc pháp lý.</div></section>
+<section class="card"><h2>CHÚ THÍCH</h2><div class="small">Chọn màu, sau đó bấm xã/phường để tô. Bản đồ gồm 5 tỉnh mới: Đắk Lắk, Gia Lai, Quảng Ngãi, Khánh Hòa và Lâm Đồng. Ranh giới cấp xã lấy từ dữ liệu GeoJSON; không phải bản đồ đo đạc pháp lý.</div></section>
 <section class="card edit-only"><h2>GHI CHÚ</h2>
 <textarea id="notes" rows="3" placeholder="Nhập nội dung ghi chú..." style="width:100%;resize:vertical;border:1px solid #d4dfdc;border-radius:8px;padding:10px;font:inherit;background:#f7faf9;color:#183344"></textarea>
 <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
@@ -98,7 +104,7 @@ function pushShared(){
     });
   },300);
 }
-const map=L.map('map').setView([11.5,108.1],7);
+const map=L.map('map').setView([13.1,108.0],6);
 const panelToggle=document.getElementById('togglePanel');
 requestAnimationFrame(()=>setTimeout(()=>map.invalidateSize(true),250));
 window.addEventListener('resize',()=>setTimeout(()=>map.invalidateSize(true),150));
@@ -111,8 +117,14 @@ panelToggle.addEventListener('click',()=>{
 // Không tải tile nền bên ngoài: tránh lỗi 403/blocked khi mở file trực tiếp.
 const colors=['#e65359','#f28b27','#f1c83d','#59a052','#74b8b1','#4e7fae','#304d83','#ad79a2','#f48e9c','#9b7763','#8dcc80','#b9b2ae','#d6a5c5','#ffffff'];
 // Màu mặc định riêng cho 6 tỉnh/thành để nhận diện ranh giới cấp tỉnh.
-const provinceColors={'Lâm Đồng':'#c5e7b2'};
-const colorStoreKey='lamdong_map_colors_v1';
+const provinceColors={
+ 'Đắk Lắk':'#f4d58d',
+ 'Gia Lai':'#b8d9a8',
+ 'Quảng Ngãi':'#a9d5df',
+ 'Khánh Hòa':'#e8b7c7',
+ 'Lâm Đồng':'#c5b5df'
+};
+const colorStoreKey='taynguyen_namtrungbo_5tinh_colors_v1';
 let selectedColor=colors[3],features=[],layer,colorById={},layersById=new Map();
 try{colorById=JSON.parse(localStorage.getItem(colorStoreKey)||'{}')}catch(e){colorById={}}
 function saveColors(){try{localStorage.setItem(colorStoreKey,JSON.stringify(colorById));pushShared()}catch(e){document.getElementById('status').textContent='Không thể tự lưu màu trong trình duyệt này; hãy dùng Xuất màu để sao lưu.'}}
@@ -131,15 +143,15 @@ let row=document.createElement('div');row.className='item';let dot=document.crea
 document.getElementById('search').oninput=renderList;
 // Ghi chú tự lưu cục bộ trong trình duyệt hiện tại
 const notesBox=document.getElementById('notes'), noteStatus=document.getElementById('noteStatus');
-try{notesBox.value=localStorage.getItem('lamdong_map_notes_v1')||''}catch(e){}
+try{notesBox.value=localStorage.getItem('taynguyen_namtrungbo_5tinh_note_text_v1')||''}catch(e){}
 notesBox.addEventListener('input',()=>{
- try{localStorage.setItem('lamdong_map_notes_v1',notesBox.value);noteStatus.textContent='Đã lưu ghi chú';pushShared()}
+ try{localStorage.setItem('taynguyen_namtrungbo_5tinh_note_text_v1',notesBox.value);noteStatus.textContent='Đã lưu ghi chú';pushShared()}
  catch(e){noteStatus.textContent='Không thể tự lưu; hãy sao chép ghi chú để dự phòng'}
 });
 document.getElementById('clearNotes').onclick=()=>{
  if(!confirm('Bạn muốn xóa toàn bộ ghi chú?'))return;
  notesBox.value='';
- try{localStorage.removeItem('lamdong_map_notes_v1')}catch(e){}
+ try{localStorage.removeItem('taynguyen_namtrungbo_5tinh_note_text_v1')}catch(e){}
  noteStatus.textContent='Đã xóa ghi chú';
 };
 let noteMode=false, mapNotes=[];
@@ -152,7 +164,7 @@ noteShapeInput.addEventListener('change', () => { selectedNoteShape = noteShapeI
 noteColorInput.addEventListener('input', () => {
     selectedNoteColor = noteColorInput.value;
 });
-const noteStoreKey='lamdong_map_pinned_notes_v1';
+const noteStoreKey='taynguyen_namtrungbo_5tinh_pinned_notes_v1';
 function saveMapNotes(){
   try{
     const plainNotes = mapNotes.map(n => ({
@@ -183,7 +195,7 @@ function noteShapeStyle(shape){
  };
  return styles[shape]||styles.circle;
 }
-const legendStoreKey='lamdong_custom_legend_v1';
+const legendStoreKey='taynguyen_namtrungbo_5tinh_custom_legend_v1';
 try{customLegendItems=JSON.parse(localStorage.getItem(legendStoreKey)||'[]');if(!Array.isArray(customLegendItems))customLegendItems=[]}catch(e){customLegendItems=[]}
 function renderCustomLegend(){
  const box=document.getElementById('customLegendList'); box.innerHTML='';
@@ -321,9 +333,15 @@ document.getElementById('import').onchange=async e=>{if(!EDIT_MODE){e.target.val
   lng:n.lng,
   text:n.text,
   color:n.color || '#e65359'
-})):[];notesBox.value=typeof data.noteText==='string'?data.noteText:'';saveColors();saveMapNotes();try{localStorage.setItem('lamdong_map_notes_v1',notesBox.value)}catch(e){}if(layer){layer.remove();layersById.clear();}await load();}else{colorById=data;saveColors();repaint()}}catch(err){alert('File JSON không hợp lệ: '+err.message)}finally{e.target.value=''}};
+})):[];notesBox.value=typeof data.noteText==='string'?data.noteText:'';saveColors();saveMapNotes();try{localStorage.setItem('taynguyen_namtrungbo_5tinh_note_text_v1',notesBox.value)}catch(e){}if(layer){layer.remove();layersById.clear();}await load();}else{colorById=data;saveColors();repaint()}}catch(err){alert('File JSON không hợp lệ: '+err.message)}finally{e.target.value=''}};
 async function load(){
- const provinces=[{name:'Lâm Đồng',code:'68'}];
+ const provinces=[
+  {name:'Đắk Lắk',code:'66'},
+  {name:'Gia Lai',code:'52'},
+  {name:'Quảng Ngãi',code:'51'},
+  {name:'Khánh Hòa',code:'56'},
+  {name:'Lâm Đồng',code:'68'}
+];
  const all=[], failures=[];
  for(const p of provinces){
   const u='https://tinhthanhpho.com/data/wards-'+p.code+'.geojson';
@@ -349,7 +367,7 @@ async function load(){
  map.fitBounds(layer.getBounds(),{padding:[12,12]});
   setTimeout(()=>map.invalidateSize(true),250);
   renderList();refreshLabels();drawMapNotes();
- document.getElementById('status').textContent='Đã tải '+features.length+' xã/phường từ '+(provinces.length-failures.length)+'/1 tỉnh.'+(failures.length?' Chưa tải được: '+failures.join(' | '):'');
+ document.getElementById('status').textContent='Đã tải '+features.length+' xã/phường từ '+(provinces.length-failures.length)+'/5 tỉnh.'+(failures.length?' Chưa tải được: '+failures.join(' | '):'');
 }
 load().catch(err=>{document.getElementById('status').textContent='Không tải được dữ liệu ranh giới: '+err.message+'. Hãy thử mở lại khi có Internet.';document.getElementById('items').innerHTML='<div class="small" style="padding:10px">Tải dữ liệu bản đồ thất bại. Kiểm tra kết nối Internet rồi tải lại trang.</div>'});
 
@@ -405,7 +423,7 @@ sharedRef.on('value', snap => {
     try {
       localStorage.setItem(colorStoreKey, JSON.stringify(rc));
       localStorage.setItem(noteStoreKey, JSON.stringify(rn));
-      localStorage.setItem('lamdong_map_notes_v1', notesBox.value);
+      localStorage.setItem('taynguyen_namtrungbo_5tinh_note_text_v1', notesBox.value);
     } catch (e) {}
 
     if (layer) {
